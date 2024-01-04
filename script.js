@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const keys = require('./credentials.json');
+const keys = require('credentials.json');
 
 // Аутентификация клиента
 const client = new google.auth.JWT(
@@ -21,7 +21,7 @@ client.authorize(function(err, tokens) {
 // Функция для записи ответа в Google Sheets
 async function writeToSheet(answer, questionNumber) {
   const sheets = google.sheets({ version: 'v4', auth: client });
-  const spreadsheetId = 'your-spreadsheet-id';
+  const spreadsheetId = '1SCBclO9a-fSsOc0ZJyNfxl3IEOLTGFRKsP5rv7t1_10';
   const range = `Responses!A${questionNumber + 1}`;
   const valueInputOption = 'RAW';
   const values = [
