@@ -1,3 +1,55 @@
+const { google } = require('googleapis');
+const keys = require('./credentials.json');
+
+// Аутентификация клиента
+const client = new google.auth.JWT(
+  keys.client_email,
+  null,
+  keys.private_key,
+  ['https://www.googleapis.com/auth/spreadsheets']
+);
+
+client.authorize(function(err, tokens) {
+  if (err) {
+    console.log(err);
+    return;
+  } else {
+    console.log('Успешная аутентификация!');
+  }
+});
+
+// Функция для записи ответа в Google Sheets
+async function writeToSheet(answer, questionNumber) {
+  const sheets = google.sheets({ version: 'v4', auth: client });
+  const spreadsheetId = 'your-spreadsheet-id';
+  const range = `Responses!A${questionNumber + 1}`;
+  const valueInputOption = 'RAW';
+  const values = [
+    [answer],
+  ];
+  const resource = {
+    values,
+  };
+  try {
+    const response = await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range,
+      valueInputOption,
+      resource,
+    });
+    console.log(`Ответ ${answer} успешно записан в Google Sheets!`);
+  } catch (err) {
+    console.error('Ошибка записи данных:', err);
+  }
+}
+
+// Модифицированная функция updateAnswer для отправки ответов в Google Sheets
+function updateAnswer() {
+  const answer = document.getElementById('answer-input').value;
+  questions[currentQuestion].answer = answer;
+  writeToSheet(answer, currentQuestion); // Вызов функции для отправки ответа в Google Sheets
+}
+
 let currentQuestion = 0;
 const questions = [
   { question: "What is the capital of France?", answer: "" },
