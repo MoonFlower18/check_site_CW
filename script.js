@@ -7,14 +7,14 @@ const questions = [
 
 function displayQuestion(questionNumber) {
   const questionTitle = document.getElementById('question-title');
-  questionTitle.textContent = questions[questionNumber].question;
+  questionTitle.textContent = `Question ${questionNumber + 1}: ${questions[questionNumber].question}`;
   document.getElementById('answer-input').value = questions[questionNumber].answer;
 }
 
 function nextQuestion() {
   if (currentQuestion < questions.length - 1) {
-    currentQuestion++;
     updateAnswer();
+    currentQuestion++;
     displayQuestion(currentQuestion);
     updateProgressBar(currentQuestion);
   }
@@ -22,8 +22,8 @@ function nextQuestion() {
 
 function previousQuestion() {
   if (currentQuestion > 0) {
-    currentQuestion--;
     updateAnswer();
+    currentQuestion--;
     displayQuestion(currentQuestion);
     updateProgressBar(currentQuestion);
   }
