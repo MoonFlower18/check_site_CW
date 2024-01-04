@@ -1,8 +1,17 @@
-let currentQuestion = 1;
-const totalQuestions = 5; // Replace with actual total number of questions
+let currentQuestion = 0;
+const questions = [
+  "What is the capital of France?",
+  "Who painted the Mona Lisa?",
+  "What is the powerhouse of the cell?"
+];
+
+function displayQuestion(questionNumber) {
+  const questionTitle = document.getElementById('question-title');
+  questionTitle.textContent = questions[questionNumber];
+}
 
 function nextQuestion() {
-  if (currentQuestion < totalQuestions) {
+  if (currentQuestion < questions.length - 1) {
     currentQuestion++;
     displayQuestion(currentQuestion);
     updateProgressBar(currentQuestion);
@@ -10,19 +19,19 @@ function nextQuestion() {
 }
 
 function previousQuestion() {
-  if (currentQuestion > 1) {
+  if (currentQuestion > 0) {
     currentQuestion--;
     displayQuestion(currentQuestion);
     updateProgressBar(currentQuestion);
   }
 }
 
-function displayQuestion(questionNumber) {
-  // Implement logic to display the question based on the questionNumber
-}
-
 function updateProgressBar(questionNumber) {
   const progressBar = document.getElementById('progress-bar');
-  const progressPercentage = (questionNumber / totalQuestions) * 100;
+  const progressPercentage = ((questionNumber + 1) / questions.length) * 100;
   progressBar.style.width = `${progressPercentage}%`;
 }
+
+// Display the first question when the page loads
+displayQuestion(currentQuestion);
+updateProgressBar(currentQuestion);
