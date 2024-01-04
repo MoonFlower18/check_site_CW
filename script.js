@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const keys = require('credentials.json');
+const keys = require('./credentials.json'); // Уточнение пути к файлу с учетными данными
 
 // Аутентификация клиента
 const client = new google.auth.JWT(
@@ -9,28 +9,16 @@ const client = new google.auth.JWT(
   ['https://www.googleapis.com/auth/spreadsheets']
 );
 
-client.authorize(function(err, tokens) {
-  if (err) {
-    console.log(err);
-    return;
-  } else {
-    console.log('Успешная аутентификация!');
-  }
-});
-
 // Функция для записи ответа в Google Sheets
 async function writeToSheet(answer, questionNumber) {
-  const sheets = google.sheets({ version: 'v4', auth: client });
-  const spreadsheetId = '1SCBclO9a-fSsOc0ZJyNfxl3IEOLTGFRKsP5rv7t1_10';
-  const range = `Responses!A${questionNumber + 1}`;
-  const valueInputOption = 'RAW';
-  const values = [
-    [answer],
-  ];
-  const resource = {
-    values,
-  };
   try {
+    await client.authorize(); // Дожидаемся успешной аутентификации
+    const sheets = google.sheets({ version: 'v4', auth: client });
+    const spreadsheetId = '1SCBclO9a-fSsOc0ZJyNfxl3IEOLTGFRKsP5rv7t1_10';
+    const range = `Responses!A${questionNumber + 1}`;
+    const valueInputOption = 'RAW';
+    const values = [[answer]];
+    const resource = { values };
     const response = await sheets.spreadsheets.values.update({
       spreadsheetId,
       range,
@@ -43,11 +31,14 @@ async function writeToSheet(answer, questionNumber) {
   }
 }
 
-// Модифицированная функция updateAnswer для отправки ответов в Google Sheets
+// Update answer on input change
+document.getElementById('answer-input').addEventListener('input', function() {
+  updateAnswer();
+});
+
+// Modified updateAnswer function to trigger writeToSheet with the updated answer
 function updateAnswer() {
-  const answer = document.getElementById('answer-input').value;
-  questions[currentQuestion].answer = answer;
-  writeToSheet(answer, currentQuestion); // Вызов функции для отправки ответа в Google Sheets
+  questions[currentQuestion].answer = document.getElementById('answer-input').value;
 }
 
 let currentQuestion = 0;
@@ -63,12 +54,14 @@ function displayQuestion(questionNumber) {
   document.getElementById('answer-input').value = questions[questionNumber].answer;
 }
 
+// Modified nextQuestion and previousQuestion functions to call writeToSheet after updating the answer
 function nextQuestion() {
   if (currentQuestion < questions.length - 1) {
     updateAnswer();
     currentQuestion++;
     displayQuestion(currentQuestion);
     updateProgressBar(currentQuestion);
+    writeToSheet(questions[currentQuestion].answer, currentQuestion); // Вызов функции для отправки ответа в Google Sheets
   }
 }
 
@@ -78,6 +71,7 @@ function previousQuestion() {
     currentQuestion--;
     displayQuestion(currentQuestion);
     updateProgressBar(currentQuestion);
+    writeToSheet(questions[currentQuestion].answer, currentQuestion); // Вызов функции для отправки ответа в Google Sheets
   }
 }
 
@@ -87,15 +81,6 @@ function updateProgressBar(questionNumber) {
   progressBar.style.width = `${progressPercentage}%`;
 }
 
-function updateAnswer() {
-  questions[currentQuestion].answer = document.getElementById('answer-input').value;
-}
-
 // Display the first question when the page loads
 displayQuestion(currentQuestion);
 updateProgressBar(currentQuestion);
-
-// Save answer on input change
-document.getElementById('answer-input').addEventListener('input', function() {
-  updateAnswer();
-});
